@@ -1,6 +1,6 @@
 Lab5
 ================
-Your Name
+Leo Lu
 2024-10-03
 
 # Load packages and dataset
@@ -11,19 +11,13 @@ library(ggplot2)
 library(Rmisc)
 ```
 
-    ## Warning: package 'Rmisc' was built under R version 4.3.3
-
     ## Loading required package: lattice
-
-    ## Warning: package 'lattice' was built under R version 4.3.3
 
     ## Loading required package: plyr
 
 ``` r
 library(rstatix)
 ```
-
-    ## Warning: package 'rstatix' was built under R version 4.3.3
 
     ## 
     ## Attaching package: 'rstatix'
@@ -40,14 +34,16 @@ library(rstatix)
 library(emmeans)
 ```
 
-    ## Warning: package 'emmeans' was built under R version 4.3.3
+    ## Welcome to emmeans.
+    ## Caution: You lose important information if you filter this package's results.
+    ## See '? untidy'
 
 ``` r
 library(bruceR)
 ```
 
     ## 
-    ## bruceR (v2023.9)
+    ## bruceR (v2024.6)
     ## Broadly Useful Convenient and Efficient R functions
     ## 
     ## Packages also loaded:
@@ -72,17 +68,11 @@ library(bruceR)
     ## https://psychbruce.github.io/bruceR
     ## 
     ## To use this package in publications, please cite:
-    ## Bao, H.-W.-S. (2023). bruceR: Broadly useful convenient and efficient R functions (Version 2023.9) [Computer software]. https://CRAN.R-project.org/package=bruceR
-
-    ## 
-    ## NEWS: A new version of bruceR (2024.6) is available (2024-06-13)!
-    ## 
-    ## ***** Please update *****
-    ## install.packages("bruceR", dep=TRUE)
+    ## Bao, H.-W.-S. (2024). bruceR: Broadly useful convenient and efficient R functions (Version 2024.6) [Computer software]. https://CRAN.R-project.org/package=bruceR
 
     ## 
     ## These packages are dependencies of `bruceR` but not installed:
-    ## - pacman, lmtest, vars, phia
+    ## - pacman, openxlsx, ggtext, lmtest, vars, phia, MuMIn, GGally
     ## 
     ## ***** Install all dependencies *****
     ## install.packages("bruceR", dep=TRUE)
@@ -91,7 +81,7 @@ library(bruceR)
 library(dplyr)
 library(labelled)
 
-lab5 <- read.csv("C:/Users/Colin/Documents/GitHub/Website/Lab5/lab5data.csv")
+lab5 <- read.csv("/Users/leolu/Documents/GitHub/Lab5/lab5data.csv")
 ```
 
 # Recode Variables
@@ -206,11 +196,11 @@ emm
     ## Confidence level used: 0.95
 
 ``` r
-contrast(emm, list("Greek Women vs. Greek Men" = c(1, 1, 0, 0)))
+contrast(emm, list("Greek Women vs. Greek Men" = c(-1, 1, 0, 0)))
 ```
 
     ##  contrast                  estimate   SE df t.ratio p.value
-    ##  Greek Women vs. Greek Men     30.6 4.01 57   7.640  <.0001
+    ##  Greek Women vs. Greek Men      -17 4.01 57  -4.238  0.0001
 
 ``` r
 contrast(emm, list("Greek Main Effect" = c(1, 1, -1, -1)))
@@ -421,6 +411,96 @@ ggplot(plot2, aes(x = Group, y = Drinks, fill = Group)) +
 
 # Q1: You hypothesized that Greek Women have a lower GPA than non-Greek women. Conduct the correct analysis below and explain whether or not your hypothesis is supported.
 
+``` r
+model <- lm(GPA ~ Group, data = lab5)
+
+emm<- emmeans(model, "Group")
+
+emm
+```
+
+    ##  Group           emmean     SE df lower.CL upper.CL
+    ##  Greek Men         3.52 0.1180 58     3.29     3.76
+    ##  Greek Women       3.66 0.0537 58     3.56     3.77
+    ##  Non-Greek Men     3.67 0.1180 58     3.43     3.90
+    ##  Non-Greek Women   3.59 0.0631 58     3.46     3.72
+    ## 
+    ## Confidence level used: 0.95
+
+``` r
+contrast(emm, list("Greek Women vs. Non-Greek Women" = c(-1, 0, 1, 0)))
+```
+
+    ##  contrast                        estimate    SE df t.ratio p.value
+    ##  Greek Women vs. Non-Greek Women    0.145 0.167 58   0.869  0.3886
+
+``` r
+#The hypothesis is not supported. After running the simple effect the observed p-value is higher than the coefficient meaning there is no difference in GPA between Greek and Non-Greek Women
+```
+
 # Q2: You hypothesized that on average women have a higher GPA than men. Conduct the correct analysis below and explain whether or not your hypothesis is supported.
 
+``` r
+model <- lm(GPA ~ Group, data = lab5)
+
+emm<- emmeans(model, "Group")
+
+emm
+```
+
+    ##  Group           emmean     SE df lower.CL upper.CL
+    ##  Greek Men         3.52 0.1180 58     3.29     3.76
+    ##  Greek Women       3.66 0.0537 58     3.56     3.77
+    ##  Non-Greek Men     3.67 0.1180 58     3.43     3.90
+    ##  Non-Greek Women   3.59 0.0631 58     3.46     3.72
+    ## 
+    ## Confidence level used: 0.95
+
+``` r
+contrast(emm, list("Gender Main Effect" = c(1, -1, 1, -1)))
+```
+
+    ##  contrast           estimate    SE df t.ratio p.value
+    ##  Gender Main Effect  -0.0623 0.186 58  -0.334  0.7392
+
+``` r
+contrast(emm, list("Greek Men vs. Greek Women" = c(-1, 1, 0, -0)))
+```
+
+    ##  contrast                  estimate   SE df t.ratio p.value
+    ##  Greek Men vs. Greek Women     0.14 0.13 58   1.078  0.2854
+
+``` r
+contrast(emm, list("Non-Greek Men vs. Non-Greek Women" = c(0, 0, -1, 1)))
+```
+
+    ##  contrast                          estimate    SE df t.ratio p.value
+    ##  Non-Greek Men vs. Non-Greek Women  -0.0775 0.134 58  -0.579  0.5649
+
+``` r
+#The hypothesis is not supported. After conducting the analysis, the main effect shows that gender has a non-significant effect on GPA. After conducting the simple effect, we have observed that there are no GPA differences between Greek men and Greek women and there are no GPA differences between Non-Greek men and Non-Greek women. 
+```
+
 # Q3: Create a bar graph to compare GPA by gender and greek (either graph works)
+
+``` r
+lab5_clean <- lab5 %>%
+  drop_na(GPA)
+
+plot<-summarySE(lab5_clean, measurevar="GPA", groupvars=c("Gender", "Greek"))
+
+plot
+```
+
+    ##   Gender Greek  N      GPA        sd         se         ci
+    ## 1    Men    No  6 3.668333 0.3446979 0.14072234 0.36173830
+    ## 2    Men   Yes  6 3.523333 0.2100159 0.08573862 0.22039814
+    ## 3  Women    No 21 3.590857 0.3451948 0.07532767 0.15713077
+    ## 4  Women   Yes 29 3.663138 0.2427688 0.04508104 0.09234432
+
+``` r
+ggplot(plot, aes(x = Greek, y = GPA, fill = Greek)) +
+  geom_col() + facet_wrap(~ Gender) + theme_bruce()
+```
+
+![](Lab5_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->

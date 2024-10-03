@@ -1,6 +1,6 @@
 ---
 title: "Lab5"
-author: "Your Name"
+author: "Leo Lu"
 date: "2024-10-03"
 output: "github_document"
 ---
@@ -15,7 +15,7 @@ library(bruceR)
 library(dplyr)
 library(labelled)
 
-lab5 <- read.csv("C:/Users/Colin/Documents/GitHub/Website/Lab5/lab5data.csv")
+lab5 <- read.csv("/Users/leolu/Documents/GitHub/Lab5/lab5data.csv")
 
 ```
 
@@ -74,7 +74,7 @@ emm<- emmeans(model, "Group")
 
 emm
 
-contrast(emm, list("Greek Women vs. Greek Men" = c(1, 1, 0, 0)))
+contrast(emm, list("Greek Women vs. Greek Men" = c(-1, 1, 0, 0)))
 
 contrast(emm, list("Greek Main Effect" = c(1, 1, -1, -1)))
 
@@ -128,18 +128,44 @@ ggplot(plot2, aes(x = Group, y = Drinks, fill = Group)) +
 
 # Q1: You hypothesized that Greek Women have a lower GPA than non-Greek women. Conduct the correct analysis below and explain whether or not your hypothesis is supported. 
 ```{r}
+model <- lm(GPA ~ Group, data = lab5)
 
+emm<- emmeans(model, "Group")
 
+emm
 
+contrast(emm, list("Greek Women vs. Non-Greek Women" = c(-1, 0, 1, 0)))
+
+#The hypothesis is not supported. After running the simple effect the observed p-value is higher than the coefficient meaning there is no difference in GPA between Greek and Non-Greek Women
 ```
 
 # Q2: You hypothesized that on average women have a higher GPA than men. Conduct the correct analysis below and explain whether or not your hypothesis is supported. 
 ```{r}
+model <- lm(GPA ~ Group, data = lab5)
 
+emm<- emmeans(model, "Group")
 
+emm
+
+contrast(emm, list("Gender Main Effect" = c(1, -1, 1, -1)))
+
+contrast(emm, list("Greek Men vs. Greek Women" = c(-1, 1, 0, -0)))
+
+contrast(emm, list("Non-Greek Men vs. Non-Greek Women" = c(0, 0, -1, 1)))
+
+#The hypothesis is not supported. After conducting the analysis, the main effect shows that gender has a non-significant effect on GPA. After conducting the simple effect, we have observed that there are no GPA differences between Greek men and Greek women and there are no GPA differences between Non-Greek men and Non-Greek women. 
 ```
 
 # Q3: Create a bar graph to compare GPA by gender and greek (either graph works)
 ```{r}
+lab5_clean <- lab5 %>%
+  drop_na(GPA)
+
+plot<-summarySE(lab5_clean, measurevar="GPA", groupvars=c("Gender", "Greek"))
+
+plot
+
+ggplot(plot, aes(x = Greek, y = GPA, fill = Greek)) +
+  geom_col() + facet_wrap(~ Gender) + theme_bruce()
 
 ```
